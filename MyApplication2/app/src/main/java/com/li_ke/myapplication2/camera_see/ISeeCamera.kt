@@ -1,5 +1,7 @@
 package com.li_ke.myapplication2.camera_see
 
+import android.content.Context
+import android.widget.Toast
 import android.widget.VideoView
 
 /**
@@ -10,4 +12,9 @@ import android.widget.VideoView
 interface ISeeCamera {
     /**预览摄像头*/
     fun see(videoView: VideoView)
+
+    /**停止录制*/
+    fun finish(context: Context, videoView: VideoView?) {
+        Toast.makeText(context, "未实现此功能", Toast.LENGTH_LONG).show()
+    }
 }

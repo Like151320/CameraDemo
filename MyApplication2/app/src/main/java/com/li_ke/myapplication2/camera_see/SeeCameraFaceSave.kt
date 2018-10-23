@@ -1,12 +1,13 @@
 package com.li_ke.myapplication2.camera_see
 
+import android.content.Context
 import android.hardware.Camera
 import android.media.MediaRecorder
-import android.os.Environment
 import android.view.SurfaceHolder
 import android.widget.VideoView
 import com.li_ke.myapplication2.VideoTestActivity
-import java.io.File
+import com.li_ke.myapplication2.savePath
+import com.li_ke.myapplication2.utils.testGetTrueAngln
 
 /**
  * 作者: Li_ke
@@ -14,8 +15,8 @@ import java.io.File
  * 作用:
  * 转为录制并展示录制的内容
  */
-class SeeCameraFaceSave(val activity: VideoTestActivity) : ISeeCamera {
-
+open class SeeCameraFaceSave(val activity: VideoTestActivity) : ISeeCamera {
+    val mRecorder = MediaRecorder()
     override fun see(videoView: VideoView) {
 
         val cameraInfo = Camera.CameraInfo()
@@ -26,25 +27,20 @@ class SeeCameraFaceSave(val activity: VideoTestActivity) : ISeeCamera {
         if (android.os.Build.MANUFACTURER == "LGE" && android.os.Build.MODEL == "Nexus 5X")
             orientation -= 180
 
-        //相机权限+录制权限
-        activity.getPermission(
-            arrayOf(
-                android.Manifest.permission.CAMERA,
-                android.Manifest.permission.RECORD_AUDIO,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-        ) {
+        //TODO("测试使用全适配方案") - 在我的小米6上正确方向、第二天测试反向……
+        orientation = testGetTrueAngln(activity, 1)
 
-            //启动摄像头
-            val camera = Camera.open(1)
-            //不预览
+
+        //启动摄像头
+        val camera = Camera.open(1)
+        //不预览
 //            camera.setPreviewDisplay(videoView.holder)
-            camera.setDisplayOrientation(orientation)//播放的旋转与录制旋转无关，只是播放时转转罢了。
-            camera.startPreview()
+//            camera.setDisplayOrientation(orientation)//播放的旋转与录制旋转无关，只是播放时转转罢了。
+//            camera.startPreview()
 
-            //录制
-            startRecorder(camera, videoView.holder, orientation)
-        }
+        //录制
+        startRecorder(camera, videoView.holder, orientation)
+
     }
 
     /**启动录制 [camera]:录制关联的摄像头，[holder]:录制预览 [orientation]:旋转角度*/
@@ -52,7 +48,6 @@ class SeeCameraFaceSave(val activity: VideoTestActivity) : ISeeCamera {
 
         camera.unlock()//必须解锁摄像头
 
-        val mRecorder = MediaRecorder()
         mRecorder.setCamera(camera)
 
         // 这两项需要放在setOutputFormat之前
@@ -75,13 +70,22 @@ class SeeCameraFaceSave(val activity: VideoTestActivity) : ISeeCamera {
         mRecorder.setPreviewDisplay(holder.surface);//视频预览
 
         //输出路径（不指定抛异常）
-        mRecorder.setOutputFile(
-            File(
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                "test.mp4"
-            ).path
-        )
+        mRecorder.setOutputFile(savePath)
         mRecorder.prepare();//预备、开始
         mRecorder.start();
+    }
+
+    override fun finish(context: Context, videoView: VideoView?) {
+        Camera.open(1).release()
+
+        mRecorder.setOnErrorListener(null)
+        mRecorder.setOnInfoListener(null)
+        mRecorder.setPreviewDisplay(null)
+        try {
+            mRecorder.stop()
+        } finally {
+            mRecorder.reset()//可无
+            mRecorder.release()
+        }
     }
 }
