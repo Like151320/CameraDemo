@@ -48,8 +48,10 @@ abstract class CameraOrientationBase : ISeeCamera {
             mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);//设置保存格式
 
             // 这两项需要放在setOutputFormat之后
-            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);//设置编码格式
-            mRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
+//            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);//设置编码格式
+//            mRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
+            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);//设置编码格式
+            mRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
 
             mRecorder.setVideoSize(640, 480);//视频宽高
             mRecorder.setVideoFrameRate(30);//帧率
